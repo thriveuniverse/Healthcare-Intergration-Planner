@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Healthcare Integration Planner</title>
+  <style>
+    :root {
+      --input-bg: #e8f2ff;
+      --input-border: #3b82f6;
+      --computed-bg: #e6f9ee;
+      --computed-border: #34d399;
+      --highlight-bg: #ffedd5;
+      --highlight-border: #f97316;
+      --text-dark: #0f172a;
+      --text-muted: #475569;
+      --surface: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--surface);
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+      color: white;
+      padding: 1.5rem 1.25rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 60rem;
+      font-size: 1rem;
+    }
+
+    main {
+      padding: 1.5rem 1.25rem 3rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    @media (min-width: 960px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    section {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    section header {
+      background: none;
+      color: inherit;
+      padding: 1.5rem 1.5rem 0.5rem;
+    }
+
+    section header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    section header p {
+      margin: 0.5rem 0 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .panel-content {
+      padding: 0 1.5rem 1.5rem;
+    }
+
+    fieldset {
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 0.65rem;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+      background: var(--input-bg);
+    }
+
+    fieldset legend {
+      padding: 0 0.5rem;
+      font-weight: 600;
+      color: #1e3a8a;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    @media (min-width: 720px) {
+      .form-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--input-border);
+      background: white;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 3.5rem;
+    }
+
+    select[multiple] {
+      min-height: 6rem;
+    }
+
+    .inline-fields {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 480px) {
+      .inline-fields {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      transform: scale(1.1);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.65rem 1.4rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #facc15;
+      outline-offset: 2px;
+    }
+
+    button.primary {
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+    }
+
+    button.primary[disabled] {
+      background: rgba(37, 99, 235, 0.5);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background: #f97316;
+      color: white;
+    }
+
+    button.ghost {
+      background: white;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-dark);
+    }
+
+    button:hover:not([disabled]) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    .panel-content.computed {
+      background: var(--computed-bg);
+      border-top: 1px solid var(--computed-border);
+      border-radius: 0 0 0.75rem 0.75rem;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 0.75rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    th,
+    td {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    th {
+      background: rgba(52, 211, 153, 0.25);
+      color: #047857;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge.low {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge.medium {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge.high {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .highlight-box {
+      border: 2px dashed var(--highlight-border);
+      background: var(--highlight-bg);
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .tornado-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tornado-bar {
+      flex: 1;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.5);
+      border-radius: 999px;
+      position: relative;
+      height: 1.2rem;
+      overflow: hidden;
+    }
+
+    .tornado-bar span {
+      position: absolute;
+      inset: 0;
+      background: rgba(34, 197, 94, 0.65);
+    }
+
+    .tornado-bar span.negative {
+      background: rgba(239, 68, 68, 0.65);
+      left: auto;
+      right: 50%;
+      transform-origin: right center;
+    }
+
+    .tornado-label {
+      min-width: 12rem;
+      font-weight: 600;
+    }
+
+    .validation-message {
+      margin-top: 0.3rem;
+      font-size: 0.85rem;
+      color: #b91c1c;
+      min-height: 1em;
+    }
+
+    .busy-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .busy-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .spinner {
+      width: 64px;
+      height: 64px;
+      border: 6px solid rgba(255, 255, 255, 0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Healthcare Integration Planner</h1>
+    <p>
+      Model, validate, and optimize integration plans across EHR, patient portal, and laboratory systems in one
+      self-contained HTML5 experience. Adjust assumptions, run Monte Carlo forecasts, and export stakeholder-ready
+      summaries.
+    </p>
+  </header>
+
+  <main>
+    <section id="inputs-panel" aria-labelledby="inputs-heading">
+      <header>
+        <h2 id="inputs-heading">Inputs</h2>
+        <p>Provide integration assumptions, technical capabilities, and risk considerations.</p>
+      </header>
+      <div class="panel-content">
+        <form id="inputs-form" novalidate>
+          <fieldset>
+            <legend>Systems &amp; Interfaces</legend>
+            <div class="form-grid two">
+              <div>
+                <div class="checkbox-row">
+                  <input type="checkbox" id="system-ehr" name="systems.ehr.enabled" aria-describedby="system-ehr-desc" />
+                  <label for="system-ehr">EHR Platform</label>
+                </div>
+                <p id="system-ehr-desc" class="sr-only">Enable if the deployment includes an EHR platform.</p>
+                <label for="ehr-capabilities">EHR Capabilities</label>
+                <textarea id="ehr-capabilities" name="systems.ehr.capabilities" title="Key workflows supported by the EHR"></textarea>
+                <label for="ehr-interfaces">Supported Interfaces</label>
+                <select id="ehr-interfaces" name="systems.ehr.interfaces" multiple title="Choose all interfaces exposed by the EHR"></select>
+              </div>
+              <div>
+                <div class="checkbox-row">
+                  <input type="checkbox" id="system-portal" name="systems.portal.enabled" aria-describedby="system-portal-desc" />
+                  <label for="system-portal">Patient Portal</label>
+                </div>
+                <p id="system-portal-desc" class="sr-only">Enable if the deployment includes a patient portal.</p>
+                <label for="portal-capabilities">Portal Capabilities</label>
+                <textarea id="portal-capabilities" name="systems.portal.capabilities" title="Major capabilities available to patients"></textarea>
+                <label for="portal-interfaces">Supported Interfaces</label>
+                <select id="portal-interfaces" name="systems.portal.interfaces" multiple title="Choose all interfaces exposed by the portal"></select>
+              </div>
+              <div>
+                <div class="checkbox-row">
+                  <input type="checkbox" id="system-lab" name="systems.lab.enabled" aria-describedby="system-lab-desc" />
+                  <label for="system-lab">Laboratory System</label>
+                </div>
+                <p id="system-lab-desc" class="sr-only">Enable if the deployment includes a laboratory information system.</p>
+                <label for="lab-capabilities">Laboratory Capabilities</label>
+                <textarea id="lab-capabilities" name="systems.lab.capabilities" title="Diagnostic and reporting capabilities"></textarea>
+                <label for="lab-interfaces">Supported Interfaces</label>
+                <select id="lab-interfaces" name="systems.lab.interfaces" multiple title="Choose all interfaces exposed by the laboratory"></select>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Protocols, Authentication &amp; Volumes</legend>
+            <div class="form-grid two">
+              <div>
+                <label for="primary-protocol">Primary Protocol</label>
+                <select id="primary-protocol" name="protocol.primary" data-required title="Preferred transport protocol">
+                  <option value="">Select a protocol</option>
+                </select>
+                <span class="validation-message" data-message-for="primary-protocol"></span>
+              </div>
+              <div>
+                <label for="secondary-protocol">Secondary Protocol</label>
+                <select id="secondary-protocol" name="protocol.secondary" title="Fallback protocol if primary is unavailable"></select>
+              </div>
+              <div>
+                <label for="auth-method">Authentication Method</label>
+                <select id="auth-method" name="auth.method" data-required title="Primary authentication for APIs">
+                  <option value="">Select an option</option>
+                </select>
+                <span class="validation-message" data-message-for="auth-method"></span>
+              </div>
+              <div>
+                <label for="sla-window">SLA Window (hours)</label>
+                <input id="sla-window" name="sla.window" type="number" inputmode="decimal" min="1" step="0.5" data-required data-positive title="Maximum allowed processing time" />
+                <span class="validation-message" data-message-for="sla-window"></span>
+              </div>
+            </div>
+            <div class="inline-fields">
+              <div>
+                <label for="daily-volume">Daily Message Volume</label>
+                <input id="daily-volume" name="volume.daily" type="number" inputmode="numeric" min="0" step="1" data-required data-positive title="Average daily transaction count" />
+                <span class="validation-message" data-message-for="daily-volume"></span>
+              </div>
+              <div>
+                <label for="peak-volume">Peak Volume (per hour)</label>
+                <input id="peak-volume" name="volume.peak" type="number" inputmode="numeric" min="0" step="1" data-required data-positive title="Maximum transactions per hour" />
+                <span class="validation-message" data-message-for="peak-volume"></span>
+              </div>
+              <div>
+                <label for="payload-size">Avg Payload Size (KB)</label>
+                <input id="payload-size" name="volume.payload" type="number" inputmode="decimal" min="0" step="0.1" data-required data-positive title="Typical message size in kilobytes" />
+                <span class="validation-message" data-message-for="payload-size"></span>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>FHIR &amp; HL7 Coverage</legend>
+            <div class="form-grid two">
+              <div>
+                <label for="fhir-resources">FHIR Resources</label>
+                <select id="fhir-resources" name="standards.fhir" multiple data-required title="Resources required for the integration"></select>
+                <span class="validation-message" data-message-for="fhir-resources"></span>
+              </div>
+              <div>
+                <label for="hl7-messages">HL7 v2 Messages</label>
+                <select id="hl7-messages" name="standards.hl7" multiple data-required title="Message structures needed for interoperability"></select>
+                <span class="validation-message" data-message-for="hl7-messages"></span>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Cost Structure</legend>
+            <div class="form-grid two">
+              <div>
+                <label for="initial-cost">Initial Integration Cost ($)</label>
+                <input id="initial-cost" name="costs.initial" type="number" inputmode="decimal" min="0" data-required data-positive title="Upfront implementation expense" />
+                <span class="validation-message" data-message-for="initial-cost"></span>
+              </div>
+              <div>
+                <label for="rate-per-message">Variable Cost per Message ($)</label>
+                <input id="rate-per-message" name="costs.rate" type="number" inputmode="decimal" min="0" step="0.01" data-required data-nonnegative title="Marginal cost per transaction" />
+                <span class="validation-message" data-message-for="rate-per-message"></span>
+              </div>
+              <div>
+                <label for="maintenance-cost">Annual Maintenance ($)</label>
+                <input id="maintenance-cost" name="costs.maintenance" type="number" inputmode="decimal" min="0" data-required data-nonnegative title="Recurring platform upkeep" />
+                <span class="validation-message" data-message-for="maintenance-cost"></span>
+              </div>
+              <div>
+                <label for="escalation-rate">Cost Escalation (%/yr)</label>
+                <input id="escalation-rate" name="costs.escalation" type="number" inputmode="decimal" step="0.1" data-required title="Expected annual cost growth" />
+                <span class="validation-message" data-message-for="escalation-rate"></span>
+              </div>
+              <div>
+                <label for="discount-rate">Discount Rate (%/yr)</label>
+                <input id="discount-rate" name="costs.discount" type="number" inputmode="decimal" step="0.1" data-required title="Rate used for NPV calculation" />
+                <span class="validation-message" data-message-for="discount-rate"></span>
+              </div>
+              <div>
+                <label for="horizon-years">Planning Horizon (years)</label>
+                <input id="horizon-years" name="costs.horizons" type="text" data-required title="Comma separated list of horizon years (e.g., 1,3,5)" />
+                <span class="validation-message" data-message-for="horizon-years"></span>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Compliance &amp; Governance</legend>
+            <div class="inline-fields">
+              <label class="checkbox-row" for="compliance-hipaa">
+                <input type="checkbox" id="compliance-hipaa" name="compliance.hipaa" />
+                HIPAA Alignment Confirmed
+              </label>
+              <label class="checkbox-row" for="compliance-gdpr">
+                <input type="checkbox" id="compliance-gdpr" name="compliance.gdpr" />
+                GDPR Alignment Confirmed
+              </label>
+              <label class="checkbox-row" for="compliance-residency">
+                <input type="checkbox" id="compliance-residency" name="compliance.residency" />
+                Data Residency Enforced
+              </label>
+              <label class="checkbox-row" for="compliance-baa">
+                <input type="checkbox" id="compliance-baa" name="compliance.baa" />
+                Business Associate Agreement Executed
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Risk &amp; Sensitivity</legend>
+            <div class="form-grid two">
+              <div>
+                <label for="probability-outage">Integration Outage Probability (%)</label>
+                <input id="probability-outage" name="risk.outageProbability" type="number" inputmode="decimal" step="0.1" data-required data-nonnegative title="Likelihood of a major outage" />
+                <span class="validation-message" data-message-for="probability-outage"></span>
+              </div>
+              <div>
+                <label for="impact-outage">Outage Impact ($)</label>
+                <input id="impact-outage" name="risk.outageImpact" type="number" inputmode="decimal" min="0" step="1000" data-required data-nonnegative title="Estimated financial impact per outage" />
+                <span class="validation-message" data-message-for="impact-outage"></span>
+              </div>
+              <div>
+                <label for="probability-security">Security Event Probability (%)</label>
+                <input id="probability-security" name="risk.securityProbability" type="number" inputmode="decimal" step="0.1" data-required data-nonnegative title="Likelihood of a security incident" />
+                <span class="validation-message" data-message-for="probability-security"></span>
+              </div>
+              <div>
+                <label for="impact-security">Security Event Impact ($)</label>
+                <input id="impact-security" name="risk.securityImpact" type="number" inputmode="decimal" min="0" step="1000" data-required data-nonnegative title="Estimated financial impact per security incident" />
+                <span class="validation-message" data-message-for="impact-security"></span>
+              </div>
+              <div>
+                <label for="monte-carlo-runs">Monte Carlo Runs</label>
+                <input id="monte-carlo-runs" name="risk.monteCarloRuns" type="number" inputmode="numeric" min="100" step="50" data-required data-positive title="Number of simulation iterations" />
+                <span class="validation-message" data-message-for="monte-carlo-runs"></span>
+              </div>
+              <div>
+                <label for="monte-carlo-seed">Random Seed</label>
+                <input id="monte-carlo-seed" name="risk.seed" type="number" inputmode="numeric" step="1" title="Seed for repeatable simulation results" />
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="actions">
+            <button type="button" class="primary" id="run-planner" disabled>Run Planner</button>
+            <button type="button" class="ghost" id="reset-defaults">Reset to defaults</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="connection-panel" aria-labelledby="connection-heading">
+      <header>
+        <h2 id="connection-heading">Connection Plan</h2>
+        <p>Recommended integration routes, protocol choices, and resource mappings.</p>
+      </header>
+      <div class="panel-content computed">
+        <div class="highlight-box" id="summary-highlight" aria-live="polite"></div>
+        <div class="table-wrapper" aria-live="polite">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">From</th>
+                <th scope="col">To</th>
+                <th scope="col">Protocol</th>
+                <th scope="col">Authentication</th>
+                <th scope="col">Alternates</th>
+              </tr>
+            </thead>
+            <tbody id="connection-body"></tbody>
+          </table>
+        </div>
+        <h3>FHIR Resource Mapping</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Resource</th>
+                <th scope="col">Purpose</th>
+                <th scope="col">Source System</th>
+                <th scope="col">Frequency</th>
+              </tr>
+            </thead>
+            <tbody id="fhir-body"></tbody>
+          </table>
+        </div>
+        <h3>HL7 v2 Message Mapping</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Message</th>
+                <th scope="col">Trigger Event</th>
+                <th scope="col">Source System</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="hl7-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    <section id="cost-panel" aria-labelledby="cost-heading">
+      <header>
+        <h2 id="cost-heading">Costs</h2>
+        <p>Deterministic forecast with probabilistic envelopes and optional net present value.</p>
+      </header>
+      <div class="panel-content computed">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Horizon (years)</th>
+                <th scope="col">Deterministic Cost</th>
+                <th scope="col">P10</th>
+                <th scope="col">P50</th>
+                <th scope="col">P90</th>
+                <th scope="col">NPV</th>
+              </tr>
+            </thead>
+            <tbody id="cost-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="compliance-panel" aria-labelledby="compliance-heading">
+      <header>
+        <h2 id="compliance-heading">Compliance</h2>
+        <p>Regulatory alignment and remediation guidance.</p>
+      </header>
+      <div class="panel-content computed">
+        <div id="compliance-body"></div>
+      </div>
+    </section>
+
+    <section id="sensitivity-panel" aria-labelledby="sensitivity-heading">
+      <header>
+        <h2 id="sensitivity-heading">Sensitivity</h2>
+        <p>Top cost drivers ranked by impact on total cost.</p>
+      </header>
+      <div class="panel-content computed">
+        <div id="sensitivity-body"></div>
+      </div>
+    </section>
+
+    <section id="export-panel" aria-labelledby="export-heading">
+      <header>
+        <h2 id="export-heading">Exports</h2>
+        <p>Download full scenario JSON or summarize costs by horizon in CSV.</p>
+      </header>
+      <div class="panel-content computed">
+        <div class="actions">
+          <button type="button" class="primary" id="download-json" disabled>Download JSON</button>
+          <button type="button" class="secondary" id="download-csv" disabled>Download CSV</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="busy-overlay" id="busy-indicator" role="alert" aria-live="assertive" aria-busy="true">
+    <div>
+      <div class="spinner" role="presentation"></div>
+      <p style="color: white; text-align: center; margin-top: 1rem; font-weight: 600;">Running Monte Carlo simulation…</p>
+    </div>
+  </div>
+
+  <footer>
+    Built with privacy and security in mind — all computations run entirely in your browser.
+  </footer>
+
+  <script type="module">
+    const interfaceOptions = [
+      "FHIR REST",
+      "HL7 v2",
+      "SOAP",
+      "SFTP",
+      "Direct Messaging",
+      "FHIR Bulk",
+      "Custom API"
+    ];
+
+    const protocolOptions = ["FHIR", "HL7 v2", "REST", "GraphQL", "SFTP", "SOAP"];
+    const authOptions = ["OAuth 2.0", "mTLS", "API Key", "SAML", "JWT"];
+
+    const defaultData = {
+      systems: {
+        ehr: {
+          enabled: true,
+          capabilities: "Clinical documentation, order management, scheduling",
+          interfaces: ["FHIR REST", "HL7 v2", "FHIR Bulk"]
+        },
+        portal: {
+          enabled: true,
+          capabilities: "Patient engagement, appointment booking, messaging",
+          interfaces: ["FHIR REST", "REST", "Direct Messaging"]
+        },
+        lab: {
+          enabled: true,
+          capabilities: "Specimen tracking, results delivery, analytics",
+          interfaces: ["HL7 v2", "SFTP", "Custom API"]
+        }
+      },
+      protocol: {
+        primary: "FHIR",
+        secondary: "HL7 v2"
+      },
+      auth: {
+        method: "OAuth 2.0"
+      },
+      volume: {
+        daily: 12500,
+        peak: 950,
+        payload: 85
+      },
+      sla: {
+        window: 4
+      },
+      standards: {
+        fhir: ["Patient", "Encounter", "Observation", "Condition", "DiagnosticReport"],
+        hl7: ["ADT^A01", "ORM^O01", "ORU^R01", "SIU^S12"]
+      },
+      costs: {
+        initial: 380000,
+        rate: 0.18,
+        maintenance: 120000,
+        escalation: 3.5,
+        discount: 6,
+        horizons: "1,3,5"
+      },
+      compliance: {
+        hipaa: true,
+        gdpr: false,
+        residency: true,
+        baa: true
+      },
+      risk: {
+        outageProbability: 6,
+        outageImpact: 150000,
+        securityProbability: 3,
+        securityImpact: 450000,
+        monteCarloRuns: 2000,
+        seed: 42
+      }
+    };
+    const fhirOptions = [
+      "Patient",
+      "Practitioner",
+      "PractitionerRole",
+      "Encounter",
+      "Observation",
+      "Condition",
+      "AllergyIntolerance",
+      "Procedure",
+      "Medication",
+      "MedicationRequest",
+      "DiagnosticReport",
+      "Immunization",
+      "CarePlan",
+      "DocumentReference",
+      "Coverage",
+      "Schedule",
+      "Appointment",
+      "Task"
+    ];
+
+    const hl7Options = [
+      "ADT^A01",
+      "ADT^A03",
+      "ADT^A08",
+      "ORM^O01",
+      "ORU^R01",
+      "SIU^S12",
+      "DFT^P03",
+      "BAR^P01",
+      "VXU^V04",
+      "MDM^T02"
+    ];
+
+    const elements = {
+      form: document.getElementById("inputs-form"),
+      runPlanner: document.getElementById("run-planner"),
+      reset: document.getElementById("reset-defaults"),
+      summaryHighlight: document.getElementById("summary-highlight"),
+      connectionBody: document.getElementById("connection-body"),
+      fhirBody: document.getElementById("fhir-body"),
+      hl7Body: document.getElementById("hl7-body"),
+      costBody: document.getElementById("cost-body"),
+      complianceBody: document.getElementById("compliance-body"),
+      sensitivityBody: document.getElementById("sensitivity-body"),
+      busyIndicator: document.getElementById("busy-indicator"),
+      downloadJson: document.getElementById("download-json"),
+      downloadCsv: document.getElementById("download-csv")
+    };
+
+    const storageKey = "integrationPlanner.inputs";
+    let lastResult = null;
+
+    function populateSelect(select, options) {
+      select.innerHTML = "";
+      for (const option of options) {
+        const opt = document.createElement("option");
+        opt.value = option;
+        opt.textContent = option;
+        select.appendChild(opt);
+      }
+    }
+
+    populateSelect(document.getElementById("ehr-interfaces"), interfaceOptions);
+    populateSelect(document.getElementById("portal-interfaces"), interfaceOptions);
+    populateSelect(document.getElementById("lab-interfaces"), interfaceOptions);
+    populateSelect(document.getElementById("primary-protocol"), ["", ...protocolOptions]);
+    populateSelect(document.getElementById("secondary-protocol"), ["", ...protocolOptions]);
+    populateSelect(document.getElementById("auth-method"), ["", ...authOptions]);
+    populateSelect(document.getElementById("fhir-resources"), fhirOptions);
+    populateSelect(document.getElementById("hl7-messages"), hl7Options);
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (error) {
+        console.warn("Failed to read stored inputs", error);
+        return null;
+      }
+    }
+
+    function saveToStorage(data) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(data));
+      } catch (error) {
+        console.warn("Failed to persist inputs", error);
+      }
+    }
+
+    function setSelectValues(select, values = []) {
+      const set = new Set(values);
+      for (const option of Array.from(select.options)) {
+        option.selected = set.has(option.value);
+      }
+    }
+    function setFormValues(data) {
+      const merged = structuredClone(defaultData);
+      if (data) {
+        deepMerge(merged, data);
+      }
+
+      document.getElementById("system-ehr").checked = merged.systems.ehr.enabled;
+      document.getElementById("ehr-capabilities").value = merged.systems.ehr.capabilities;
+      setSelectValues(document.getElementById("ehr-interfaces"), merged.systems.ehr.interfaces);
+
+      document.getElementById("system-portal").checked = merged.systems.portal.enabled;
+      document.getElementById("portal-capabilities").value = merged.systems.portal.capabilities;
+      setSelectValues(document.getElementById("portal-interfaces"), merged.systems.portal.interfaces);
+
+      document.getElementById("system-lab").checked = merged.systems.lab.enabled;
+      document.getElementById("lab-capabilities").value = merged.systems.lab.capabilities;
+      setSelectValues(document.getElementById("lab-interfaces"), merged.systems.lab.interfaces);
+
+      document.getElementById("primary-protocol").value = merged.protocol.primary || "";
+      document.getElementById("secondary-protocol").value = merged.protocol.secondary || "";
+      document.getElementById("auth-method").value = merged.auth.method || "";
+      document.getElementById("sla-window").value = merged.sla.window ?? "";
+      document.getElementById("daily-volume").value = merged.volume.daily ?? "";
+      document.getElementById("peak-volume").value = merged.volume.peak ?? "";
+      document.getElementById("payload-size").value = merged.volume.payload ?? "";
+
+      setSelectValues(document.getElementById("fhir-resources"), merged.standards.fhir);
+      setSelectValues(document.getElementById("hl7-messages"), merged.standards.hl7);
+
+      document.getElementById("initial-cost").value = merged.costs.initial ?? "";
+      document.getElementById("rate-per-message").value = merged.costs.rate ?? "";
+      document.getElementById("maintenance-cost").value = merged.costs.maintenance ?? "";
+      document.getElementById("escalation-rate").value = merged.costs.escalation ?? "";
+      document.getElementById("discount-rate").value = merged.costs.discount ?? "";
+      document.getElementById("horizon-years").value = merged.costs.horizons ?? "";
+
+      document.getElementById("compliance-hipaa").checked = merged.compliance.hipaa;
+      document.getElementById("compliance-gdpr").checked = merged.compliance.gdpr;
+      document.getElementById("compliance-residency").checked = merged.compliance.residency;
+      document.getElementById("compliance-baa").checked = merged.compliance.baa;
+
+      document.getElementById("probability-outage").value = merged.risk.outageProbability ?? "";
+      document.getElementById("impact-outage").value = merged.risk.outageImpact ?? "";
+      document.getElementById("probability-security").value = merged.risk.securityProbability ?? "";
+      document.getElementById("impact-security").value = merged.risk.securityImpact ?? "";
+      document.getElementById("monte-carlo-runs").value = merged.risk.monteCarloRuns ?? "";
+      document.getElementById("monte-carlo-seed").value = merged.risk.seed ?? "";
+    }
+
+    function deepMerge(target, source) {
+      for (const key of Object.keys(source)) {
+        const value = source[key];
+        if (value && typeof value === "object" && !Array.isArray(value)) {
+          if (!target[key]) target[key] = {};
+          deepMerge(target[key], value);
+        } else {
+          target[key] = value;
+        }
+      }
+    }
+
+    function sanitizeNumber(value) {
+      if (typeof value !== "string") return value;
+      const cleaned = value.replace(/[^0-9.\-]/g, "");
+      return cleaned.trim();
+    }
+
+    function parseNumeric(value) {
+      const sanitized = sanitizeNumber(value);
+      if (sanitized === "") return NaN;
+      return Number(sanitized);
+    }
+
+    function getSelectValues(select) {
+      return Array.from(select.selectedOptions).map((option) => option.value);
+    }
+
+    function collectFormValues() {
+      return {
+        systems: {
+          ehr: {
+            enabled: document.getElementById("system-ehr").checked,
+            capabilities: document.getElementById("ehr-capabilities").value.trim(),
+            interfaces: getSelectValues(document.getElementById("ehr-interfaces"))
+          },
+          portal: {
+            enabled: document.getElementById("system-portal").checked,
+            capabilities: document.getElementById("portal-capabilities").value.trim(),
+            interfaces: getSelectValues(document.getElementById("portal-interfaces"))
+          },
+          lab: {
+            enabled: document.getElementById("system-lab").checked,
+            capabilities: document.getElementById("lab-capabilities").value.trim(),
+            interfaces: getSelectValues(document.getElementById("lab-interfaces"))
+          }
+        },
+        protocol: {
+          primary: document.getElementById("primary-protocol").value,
+          secondary: document.getElementById("secondary-protocol").value
+        },
+        auth: {
+          method: document.getElementById("auth-method").value
+        },
+        volume: {
+          daily: parseNumeric(document.getElementById("daily-volume").value),
+          peak: parseNumeric(document.getElementById("peak-volume").value),
+          payload: parseNumeric(document.getElementById("payload-size").value)
+        },
+        sla: {
+          window: parseNumeric(document.getElementById("sla-window").value)
+        },
+        standards: {
+          fhir: getSelectValues(document.getElementById("fhir-resources")),
+          hl7: getSelectValues(document.getElementById("hl7-messages"))
+        },
+        costs: {
+          initial: parseNumeric(document.getElementById("initial-cost").value),
+          rate: parseNumeric(document.getElementById("rate-per-message").value),
+          maintenance: parseNumeric(document.getElementById("maintenance-cost").value),
+          escalation: parseNumeric(document.getElementById("escalation-rate").value),
+          discount: parseNumeric(document.getElementById("discount-rate").value),
+          horizons: document.getElementById("horizon-years").value
+        },
+        compliance: {
+          hipaa: document.getElementById("compliance-hipaa").checked,
+          gdpr: document.getElementById("compliance-gdpr").checked,
+          residency: document.getElementById("compliance-residency").checked,
+          baa: document.getElementById("compliance-baa").checked
+        },
+        risk: {
+          outageProbability: parseNumeric(document.getElementById("probability-outage").value),
+          outageImpact: parseNumeric(document.getElementById("impact-outage").value),
+          securityProbability: parseNumeric(document.getElementById("probability-security").value),
+          securityImpact: parseNumeric(document.getElementById("impact-security").value),
+          monteCarloRuns: parseInt(document.getElementById("monte-carlo-runs").value, 10),
+          seed: parseInt(document.getElementById("monte-carlo-seed").value, 10) || undefined
+        }
+      };
+    }
+    const validationRules = {
+      required: (value) => {
+        if (Array.isArray(value)) {
+          return value.length > 0;
+        }
+        return value !== "" && value !== null && value !== undefined && !Number.isNaN(value);
+      },
+      positive: (value) => typeof value === "number" && value > 0,
+      nonnegative: (value) => typeof value === "number" && value >= 0
+    };
+
+    function validateField(input) {
+      const value = (() => {
+        if (input.matches("select[multiple]")) {
+          return getSelectValues(input);
+        }
+        if (input.type === "checkbox") {
+          return input.checked;
+        }
+        if (input.type === "number" || input.dataset.positive || input.dataset.nonnegative) {
+          return parseNumeric(input.value);
+        }
+        return input.value.trim();
+      })();
+
+      if (input.dataset.required !== undefined) {
+        const valid = validationRules.required(value);
+        if (!valid) {
+          setValidationMessage(input, "This field is required.");
+          return false;
+        }
+      }
+
+      if (input.dataset.positive !== undefined) {
+        const valid = validationRules.positive(value);
+        if (!valid) {
+          setValidationMessage(input, "Enter a positive number.");
+          return false;
+        }
+      }
+
+      if (input.dataset.nonnegative !== undefined) {
+        const valid = validationRules.nonnegative(value);
+        if (!valid) {
+          setValidationMessage(input, "Enter zero or a positive number.");
+          return false;
+        }
+      }
+
+      if (input.id === "horizon-years") {
+        const horizons = input.value
+          .split(",")
+          .map((item) => parseFloat(item.trim()))
+          .filter((num) => !Number.isNaN(num) && num > 0);
+        if (horizons.length === 0) {
+          setValidationMessage(input, "Provide at least one positive horizon year.");
+          return false;
+        }
+      }
+
+      setValidationMessage(input, "");
+      return true;
+    }
+
+    function setValidationMessage(input, message) {
+      const messageElement = document.querySelector(`.validation-message[data-message-for="${input.id}"]`);
+      if (messageElement) {
+        messageElement.textContent = message;
+      }
+      input.setAttribute("aria-invalid", message ? "true" : "false");
+    }
+
+    function validateForm() {
+      const inputs = elements.form.querySelectorAll("[data-required], [data-positive], [data-nonnegative], #horizon-years");
+      let valid = true;
+      for (const input of inputs) {
+        const fieldValid = validateField(input);
+        if (!fieldValid) {
+          valid = false;
+        }
+      }
+      elements.runPlanner.disabled = !valid;
+      return valid;
+    }
+
+    elements.form.addEventListener("input", (event) => {
+      const target = event.target;
+      if (target.matches("input, select, textarea")) {
+        if (target.type === "number") {
+          target.value = sanitizeNumber(target.value);
+        }
+        validateField(target);
+        validateForm();
+        saveToStorage(collectFormValues());
+      }
+    });
+
+    elements.reset.addEventListener("click", () => {
+      setFormValues(defaultData);
+      validateForm();
+      saveToStorage(defaultData);
+    });
+
+    const stored = loadFromStorage();
+    setFormValues(stored ?? defaultData);
+    validateForm();
+    class SeededRandom {
+      constructor(seed = Date.now()) {
+        this.seed = seed % 2147483647;
+        if (this.seed <= 0) this.seed += 2147483646;
+      }
+
+      next() {
+        return (this.seed = (this.seed * 16807) % 2147483647);
+      }
+
+      nextFloat() {
+        return (this.next() - 1) / 2147483646;
+      }
+
+      normal(mean = 0, stddev = 1) {
+        let u = 0;
+        let v = 0;
+        while (u === 0) u = this.nextFloat();
+        while (v === 0) v = this.nextFloat();
+        const mag = Math.sqrt(-2.0 * Math.log(u));
+        const z0 = mag * Math.cos(2.0 * Math.PI * v);
+        return z0 * stddev + mean;
+      }
+    }
+
+    const integrationPlanner = {
+      planConnections(inputs) {
+        const systems = inputs.systems;
+        const connections = [];
+        const enabledSystems = Object.entries(systems)
+          .filter(([, system]) => system.enabled)
+          .map(([key, system]) => ({ key, ...system }));
+
+        const protocol = inputs.protocol.primary || "FHIR";
+        const fallback = inputs.protocol.secondary || "REST";
+        const auth = inputs.auth.method || "OAuth 2.0";
+
+        const protocolPreference = {
+          ehr_portal: protocol === "FHIR" ? "FHIR" : protocol,
+          portal_lab: systems.portal.interfaces.includes("FHIR REST") ? "FHIR" : fallback,
+          ehr_lab: systems.lab.interfaces.includes("HL7 v2") ? "HL7 v2" : protocol
+        };
+
+        const pairs = [
+          { from: "EHR Platform", to: "Patient Portal", key: "ehr_portal" },
+          { from: "EHR Platform", to: "Laboratory System", key: "ehr_lab" },
+          { from: "Patient Portal", to: "Laboratory System", key: "portal_lab" }
+        ];
+
+        for (const pair of pairs) {
+          const fromSystem = systems[pair.from.toLowerCase().split(" ")[0]];
+          const toSystem = systems[pair.to.toLowerCase().split(" ")[0]];
+          if (fromSystem?.enabled && toSystem?.enabled) {
+            const recommended = protocolPreference[pair.key] || protocol;
+            const alternates = [fallback, "GraphQL", "SFTP"].filter((opt, idx, arr) => opt && arr.indexOf(opt) === idx);
+            connections.push({
+              from: pair.from,
+              to: pair.to,
+              protocol: recommended,
+              authentication: auth,
+              alternates
+            });
+          }
+        }
+
+        const fhirMapping = inputs.standards.fhir.map((resource) => ({
+          resource,
+          purpose: resourcePurpose(resource),
+          source: inferSourceSystem(resource, enabledSystems),
+          frequency: inferFrequency(resource, inputs.volume)
+        }));
+
+        const hl7Mapping = inputs.standards.hl7.map((message) => ({
+          message,
+          trigger: messageTrigger(message),
+          source: inferHL7Source(message, enabledSystems),
+          notes: messageNotes(message)
+        }));
+
+        return { connections, fhirMapping, hl7Mapping };
+      },
+      estimateCosts(inputs, mode = "deterministic") {
+        const horizons = inputs.costs.horizons
+          .split(",")
+          .map((year) => parseFloat(year.trim()))
+          .filter((year) => !Number.isNaN(year) && year > 0)
+          .sort((a, b) => a - b);
+
+        const baseVolume = inputs.volume.daily * 365;
+        const annualVariable = baseVolume * inputs.costs.rate;
+        const annualMaintenance = inputs.costs.maintenance;
+        const escalation = 1 + inputs.costs.escalation / 100;
+        const discount = 1 + inputs.costs.discount / 100;
+
+        if (mode === "deterministic") {
+          let cumulative = inputs.costs.initial;
+          let escalatedMaintenance = annualMaintenance;
+          let escalatedVariable = annualVariable;
+          const horizonsData = [];
+
+          for (const horizon of horizons) {
+            for (let year = 1; year <= horizon; year++) {
+              if (year === 1) {
+                cumulative += escalatedMaintenance + escalatedVariable;
+              } else {
+                escalatedMaintenance *= escalation;
+                escalatedVariable *= escalation * (1 + inputs.volume.peak / (inputs.volume.daily * 24));
+                cumulative += escalatedMaintenance + escalatedVariable;
+              }
+            }
+            const npv = computeNPV(inputs, horizon, annualVariable, annualMaintenance, escalation, discount);
+            horizonsData.push({ horizon, deterministic: roundCurrency(cumulative), npv });
+          }
+
+          return { horizons: horizonsData };
+        }
+
+        const runs = Math.max(100, inputs.risk.monteCarloRuns || 1000);
+        const rng = new SeededRandom(inputs.risk.seed ?? Date.now());
+        const outcomes = horizons.map(() => []);
+
+        for (let run = 0; run < runs; run++) {
+          let cumulative = inputs.costs.initial;
+          let escalatedMaintenance = annualMaintenance;
+          let escalatedVariable = annualVariable;
+          for (let idx = 0; idx < horizons.length; idx++) {
+            const horizon = horizons[idx];
+            for (let year = 1; year <= horizon; year++) {
+              if (year > 1 || run === 0) {
+                escalatedMaintenance *= escalation + rng.normal(0, 0.01);
+                escalatedVariable *= escalation + rng.normal(0, 0.015);
+              }
+              const outageEvents = rng.nextFloat() < inputs.risk.outageProbability / 100 ? 1 : 0;
+              const securityEvents = rng.nextFloat() < inputs.risk.securityProbability / 100 ? 1 : 0;
+              const eventCost = outageEvents * inputs.risk.outageImpact + securityEvents * inputs.risk.securityImpact;
+              const noise = rng.normal(0, annualVariable * 0.05);
+              cumulative += Math.max(0, escalatedMaintenance + escalatedVariable + noise + eventCost);
+            }
+            outcomes[idx].push(cumulative);
+          }
+        }
+
+        const horizonsData = horizons.map((horizon, idx) => {
+          const sorted = outcomes[idx].slice().sort((a, b) => a - b);
+          return {
+            horizon,
+            p10: roundCurrency(percentile(sorted, 0.1)),
+            p50: roundCurrency(percentile(sorted, 0.5)),
+            p90: roundCurrency(percentile(sorted, 0.9))
+          };
+        });
+
+        return { runs, horizons: horizonsData };
+      },
+      assessCompliance(inputs) {
+        const findings = [];
+
+        if (!inputs.compliance.hipaa) {
+          findings.push({
+            severity: "high",
+            title: "HIPAA Business Associate safeguards pending",
+            remediation: "Complete HIPAA risk analysis and implement required administrative controls before go-live."
+          });
+        } else {
+          findings.push({
+            severity: "low",
+            title: "HIPAA alignment verified",
+            remediation: "Maintain ongoing audit logging and annual policy attestations."
+          });
+        }
+
+        if (!inputs.compliance.gdpr) {
+          findings.push({
+            severity: "medium",
+            title: "GDPR data subject processes incomplete",
+            remediation: "Document lawful basis, add DSAR workflow, and publish privacy notice updates."
+          });
+        }
+
+        if (!inputs.compliance.residency) {
+          findings.push({
+            severity: "medium",
+            title: "Data residency constraints unmet",
+            remediation: "Deploy regional storage or contract with compliant hosting zone."
+          });
+        }
+
+        if (!inputs.compliance.baa) {
+          findings.push({
+            severity: "high",
+            title: "Business Associate Agreement unsigned",
+            remediation: "Execute BAA with each covered entity partner to satisfy HIPAA requirements."
+          });
+        }
+
+        if (findings.length === 0) {
+          findings.push({
+            severity: "low",
+            title: "All compliance controls in place",
+            remediation: "Continue quarterly reviews to confirm no scope drift."
+          });
+        }
+
+        return findings;
+      },
+      runSensitivity(inputs) {
+        const drivers = [];
+        const baseCost = inputs.costs.initial + inputs.costs.maintenance + inputs.volume.daily * 365 * inputs.costs.rate;
+
+        drivers.push({
+          factor: "Daily volume",
+          impact: (inputs.volume.daily * inputs.costs.rate * 365) / baseCost
+        });
+        drivers.push({
+          factor: "Maintenance",
+          impact: inputs.costs.maintenance / baseCost
+        });
+        drivers.push({
+          factor: "Outage impact",
+          impact: (inputs.risk.outageProbability / 100) * inputs.risk.outageImpact / baseCost
+        });
+        drivers.push({
+          factor: "Security impact",
+          impact: (inputs.risk.securityProbability / 100) * inputs.risk.securityImpact / baseCost
+        });
+        drivers.push({
+          factor: "Discount rate",
+          impact: inputs.costs.discount / 100
+        });
+        drivers.push({
+          factor: "Escalation rate",
+          impact: inputs.costs.escalation / 100
+        });
+
+        return drivers
+          .map((driver) => ({ ...driver, impact: Number(driver.impact.toFixed(3)) }))
+          .sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact))
+          .slice(0, 10);
+      },
+      summarize(inputs) {
+        const systems = Object.values(inputs.systems)
+          .filter((system) => system.enabled)
+          .map((system) => system.capabilities.split(",")[0]?.trim())
+          .filter(Boolean)
+          .join(", ");
+
+        const resources = inputs.standards.fhir.slice(0, 3).join(", ");
+        const messages = inputs.standards.hl7.slice(0, 3).join(", ");
+
+        return `Integrating ${systems || "selected systems"} using ${inputs.protocol.primary || "FHIR"} with ${inputs.auth.method ||
+          "OAuth 2.0"}. Priority resources include ${resources} and HL7 coverage for ${messages}.`;
+      }
+    };
+    function resourcePurpose(resource) {
+      const mapping = {
+        Patient: "Master patient index synchronization",
+        Practitioner: "Provider registry updates",
+        PractitionerRole: "Care team context",
+        Encounter: "Visit context for downstream systems",
+        Observation: "Lab and vital data sharing",
+        Condition: "Problem list consistency",
+        AllergyIntolerance: "Safety screening",
+        Procedure: "Surgical workflow documentation",
+        Medication: "Medication formulary",
+        MedicationRequest: "Order management",
+        DiagnosticReport: "Lab report delivery",
+        Immunization: "Immunization registry updates",
+        CarePlan: "Care coordination",
+        DocumentReference: "Clinical document exchange",
+        Coverage: "Payer eligibility",
+        Schedule: "Provider availability",
+        Appointment: "Patient scheduling",
+        Task: "Workflow orchestration"
+      };
+      return mapping[resource] || "Operational alignment";
+    }
+
+    function inferSourceSystem(resource, systems) {
+      if (/Patient|Coverage|Appointment|Schedule/.test(resource)) return "Patient Portal";
+      if (/Observation|DiagnosticReport/.test(resource)) return "Laboratory System";
+      return systems.find((system) => system.key === "ehr") ? "EHR Platform" : systems[0]?.key || "Primary System";
+    }
+
+    function inferFrequency(resource, volume) {
+      if (/Observation|DiagnosticReport/.test(resource)) return "Hourly";
+      if (/Appointment|Schedule/.test(resource)) return "Near real-time";
+      if (/Patient|Coverage/.test(resource)) return "Daily";
+      return volume.daily > 10000 ? "Near real-time" : "Daily";
+    }
+
+    function messageTrigger(message) {
+      const triggers = {
+        "ADT^A01": "Patient admit",
+        "ADT^A03": "Discharge",
+        "ADT^A08": "Update patient information",
+        "ORM^O01": "Order entry",
+        "ORU^R01": "Result reporting",
+        "SIU^S12": "Scheduling notification",
+        "DFT^P03": "Billing update",
+        "BAR^P01": "Account update",
+        "VXU^V04": "Immunization upload",
+        "MDM^T02": "Document notification"
+      };
+      return triggers[message] || "Workflow event";
+    }
+
+    function inferHL7Source(message, systems) {
+      if (/ORU|DFT|VXU/.test(message)) return "Laboratory System";
+      if (/ADT|BAR/.test(message)) return "EHR Platform";
+      return systems.find((system) => system.key === "portal") ? "Patient Portal" : "Primary System";
+    }
+
+    function messageNotes(message) {
+      if (message === "ORU^R01") return "Includes lab and radiology result payloads.";
+      if (message === "ADT^A01") return "Ensure demographic segments map to MPI identifiers.";
+      if (message === "SIU^S12") return "Synchronize scheduling changes bi-directionally.";
+      return "Confirm segment usage and optional fields.";
+    }
+
+    function percentile(sortedArray, percentile) {
+      const index = (sortedArray.length - 1) * percentile;
+      const lower = Math.floor(index);
+      const upper = Math.ceil(index);
+      if (lower === upper) return sortedArray[lower];
+      return sortedArray[lower] + (sortedArray[upper] - sortedArray[lower]) * (index - lower);
+    }
+
+    function roundCurrency(value) {
+      return Math.round(value * 100) / 100;
+    }
+
+    function computeNPV(inputs, horizon, annualVariable, annualMaintenance, escalation, discount) {
+      let npv = inputs.costs.initial;
+      for (let year = 1; year <= horizon; year++) {
+        const factor = Math.pow(discount, year);
+        const escalated = Math.pow(escalation, year - 1);
+        const cashFlow = (annualVariable + annualMaintenance) * escalated;
+        npv += cashFlow / factor;
+      }
+      return roundCurrency(npv);
+    }
+    async function runPlanner() {
+      if (!validateForm()) return;
+      const inputs = collectFormValues();
+      saveToStorage(inputs);
+
+      elements.busyIndicator.classList.add("active");
+      elements.runPlanner.disabled = true;
+
+      try {
+        const [connectionPlan, deterministicCosts] = [
+          integrationPlanner.planConnections(inputs),
+          integrationPlanner.estimateCosts(inputs, "deterministic")
+        ];
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const monteCarloCosts = integrationPlanner.estimateCosts(inputs, "monteCarlo");
+        const complianceFindings = integrationPlanner.assessCompliance(inputs);
+        const sensitivity = integrationPlanner.runSensitivity(inputs);
+        const summary = integrationPlanner.summarize(inputs);
+
+        lastResult = {
+          inputs,
+          connectionPlan,
+          deterministicCosts,
+          monteCarloCosts,
+          complianceFindings,
+          sensitivity,
+          summary
+        };
+
+        renderSummary(summary);
+        renderConnections(connectionPlan.connections);
+        renderFHIR(connectionPlan.fhirMapping);
+        renderHL7(connectionPlan.hl7Mapping);
+        renderCosts(deterministicCosts, monteCarloCosts);
+        renderCompliance(complianceFindings);
+        renderSensitivity(sensitivity);
+
+        elements.downloadJson.disabled = false;
+        elements.downloadCsv.disabled = false;
+      } finally {
+        elements.busyIndicator.classList.remove("active");
+        elements.runPlanner.disabled = !validateForm();
+      }
+    }
+
+    function renderSummary(summary) {
+      elements.summaryHighlight.textContent = summary;
+    }
+
+    function renderConnections(connections) {
+      elements.connectionBody.innerHTML = "";
+      if (connections.length === 0) {
+        elements.connectionBody.innerHTML = '<tr><td colspan="5">No active system pairs selected.</td></tr>';
+        return;
+      }
+      for (const connection of connections) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${connection.from}</td>
+          <td>${connection.to}</td>
+          <td>${connection.protocol}</td>
+          <td>${connection.authentication}</td>
+          <td>${connection.alternates.join(", ")}</td>
+        `;
+        elements.connectionBody.appendChild(row);
+      }
+    }
+    function renderFHIR(mapping) {
+      elements.fhirBody.innerHTML = "";
+      if (mapping.length === 0) {
+        elements.fhirBody.innerHTML = '<tr><td colspan="4">No FHIR resources selected.</td></tr>';
+        return;
+      }
+      for (const item of mapping) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.resource}</td>
+          <td>${item.purpose}</td>
+          <td>${item.source}</td>
+          <td>${item.frequency}</td>
+        `;
+        elements.fhirBody.appendChild(row);
+      }
+    }
+
+    function renderHL7(mapping) {
+      elements.hl7Body.innerHTML = "";
+      if (mapping.length === 0) {
+        elements.hl7Body.innerHTML = '<tr><td colspan="4">No HL7 messages selected.</td></tr>';
+        return;
+      }
+      for (const item of mapping) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.message}</td>
+          <td>${item.trigger}</td>
+          <td>${item.source}</td>
+          <td>${item.notes}</td>
+        `;
+        elements.hl7Body.appendChild(row);
+      }
+    }
+
+    function renderCosts(deterministic, monteCarlo) {
+      elements.costBody.innerHTML = "";
+      const map = new Map();
+      for (const entry of deterministic.horizons) {
+        map.set(entry.horizon, { deterministic: entry.deterministic, npv: entry.npv });
+      }
+      if (monteCarlo?.horizons) {
+        for (const entry of monteCarlo.horizons) {
+          const existing = map.get(entry.horizon) || {};
+          map.set(entry.horizon, { ...existing, p10: entry.p10, p50: entry.p50, p90: entry.p90 });
+        }
+      }
+
+      if (map.size === 0) {
+        elements.costBody.innerHTML = '<tr><td colspan="6">No cost horizons calculated.</td></tr>';
+        return;
+      }
+
+      const formatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+      for (const [horizon, values] of Array.from(map.entries()).sort((a, b) => a[0] - b[0])) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${horizon}</td>
+          <td>${values.deterministic ? formatter.format(values.deterministic) : "–"}</td>
+          <td>${values.p10 ? formatter.format(values.p10) : "–"}</td>
+          <td>${values.p50 ? formatter.format(values.p50) : "–"}</td>
+          <td>${values.p90 ? formatter.format(values.p90) : "–"}</td>
+          <td>${values.npv ? formatter.format(values.npv) : "–"}</td>
+        `;
+        elements.costBody.appendChild(row);
+      }
+    }
+    function renderCompliance(findings) {
+      elements.complianceBody.innerHTML = "";
+      if (!findings || findings.length === 0) {
+        elements.complianceBody.innerHTML = '<p>All compliance checks cleared with no outstanding items.</p>';
+        return;
+      }
+
+      for (const finding of findings) {
+        const card = document.createElement("article");
+        card.style.border = "1px solid rgba(15,23,42,0.15)";
+        card.style.borderRadius = "0.65rem";
+        card.style.padding = "1rem";
+        card.style.marginBottom = "0.75rem";
+        card.innerHTML = `
+          <div class="badge ${finding.severity}">${finding.severity}</div>
+          <h4 style="margin:0.5rem 0;">${finding.title}</h4>
+          <p style="margin:0; color:${finding.severity === "high" ? "#b91c1c" : "#1f2937"};">${finding.remediation}</p>
+        `;
+        elements.complianceBody.appendChild(card);
+      }
+    }
+
+    function renderSensitivity(drivers) {
+      elements.sensitivityBody.innerHTML = "";
+      if (!drivers || drivers.length === 0) {
+        elements.sensitivityBody.innerHTML = '<p>No sensitivity drivers calculated.</p>';
+        return;
+      }
+
+      const maxImpact = Math.max(...drivers.map((driver) => Math.abs(driver.impact)));
+      for (const driver of drivers) {
+        const row = document.createElement("div");
+        row.className = "tornado-row";
+        const label = document.createElement("div");
+        label.className = "tornado-label";
+        label.textContent = driver.factor;
+        const bar = document.createElement("div");
+        bar.className = "tornado-bar";
+        const span = document.createElement("span");
+        const width = Math.min(100, Math.round((Math.abs(driver.impact) / maxImpact) * 100));
+        span.style.width = `${width}%`;
+        if (driver.impact < 0) {
+          span.classList.add("negative");
+        }
+        bar.appendChild(span);
+        const value = document.createElement("div");
+        value.textContent = `${(driver.impact * 100).toFixed(1)}%`;
+        row.append(label, bar, value);
+        elements.sensitivityBody.appendChild(row);
+      }
+    }
+    elements.runPlanner.addEventListener("click", runPlanner);
+
+    elements.downloadJson.addEventListener("click", () => {
+      if (!lastResult) return;
+      const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      triggerDownload(url, "integration-planner-results.json");
+    });
+
+    elements.downloadCsv.addEventListener("click", () => {
+      if (!lastResult) return;
+      const rows = ["Horizon,Deterministic,P10,P50,P90,NPV"];
+      const deterministic = new Map(lastResult.deterministicCosts.horizons.map((entry) => [entry.horizon, entry]));
+      for (const mc of lastResult.monteCarloCosts.horizons) {
+        const det = deterministic.get(mc.horizon) || {};
+        rows.push([
+          mc.horizon,
+          det.deterministic ?? "",
+          mc.p10 ?? "",
+          mc.p50 ?? "",
+          mc.p90 ?? "",
+          det.npv ?? ""
+        ].join(","));
+      }
+      const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      triggerDownload(url, "integration-costs.csv");
+    });
+
+    function triggerDownload(url, filename) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
+        const tag = event.target.tagName.toLowerCase();
+        if (tag === "input" || tag === "select") {
+          event.preventDefault();
+        }
+      }
+    });
+
+    runPlanner();
+  </script>
+</body>
+</html>
